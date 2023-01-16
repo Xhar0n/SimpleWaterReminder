@@ -1,16 +1,41 @@
-# WaterReminder
+# SWR
+## Simple Water Reminder
 
-A new Flutter project.
+A simple app developed for mobile devices to remind you to **drink water**.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+<table>
+    <tr>
+        <th>Main Menu</th>
+        <th>Settings</th>
+    </tr>
+    <tr>
+        <td><img src="Highlights/SWR_MAIN_MENU_250x542.png"></td>
+        <td><img src="Highlights/SWR_SETTINGS_250x542.png"></td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <th>Notification Center</th>
+        <th>Stats</th>
+    </tr>
+    <tr>
+        <td><img src="Highlights/SWR_COMING_SOON_250x542.png"></td>
+        <td><img src="Highlights/SWR_COMING_SOON_250x542.png"></td>
+    </tr>
+</table>
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+> #### WHY DRINK WATER?
+>
+> - Helps to lose Weight.
+> - Healthy Skin.
+> - Fights Infection.
+> - Get Rid Of Body Toxins.
+> - Helathy Heart.
+> - Prevents Joints Pains & Arthritis.
+> - Boost Energy.
+> - Prevent Constipation.
+> - Reduce risk of Cancer.
+> - Improves Productivity.
+>
+>  **Drink** enough water and **stay healthy**.
