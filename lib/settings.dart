@@ -11,20 +11,34 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   int hourpart = 1;
 
-  int _weight = 61;
   int _workout = 1;
   int _wakeup = 6;
   int _bed = 10;
   int _glass = 300;
+  // new
+  int _weight = 61;
+  int _height = 175;
+  int _age = 18;
+  int _gender = 0;
+  int _activity = 0;
 
-  final int _weightchange = 1;
   final int _workoutchange = 1;
   final int _glasschange = 50;
   String _wakeupshow = '';
   String _bedshow = '';
+  // new 
+  final int _weightchange = 1;
+  final int _heightchange = 1;
+  final int _agetchange = 1;
+  final int _activitytchange = 1;
+
 
   double _totalwater = 0;
   List<String> _drink = [];
+
+  //new
+  final List<int> _gendercolors = [0xff353941, 0xff5f85db, 0xff353941];
+  final List<String> _activitynames = ['Sedentary', 'Light', 'Moderate', 'High', 'Extreme'];
 
   @override
   void initState() {
@@ -126,7 +140,15 @@ class _SettingsState extends State<Settings> {
   }
 
   double getTotalWater() {
-    return _weight * 43.68 + _workout * 354.88;
+    double k;
+    if(_age >= 14){
+      k = ((_gender == 1) ? 2 : 1.8);
+    }
+    else{
+      k = ((_gender == 1) ? 1.885 : 1.69);
+    }
+
+    return 0.5*k * (_height*7.9 + (_weight*9.5 )) * 0.8;
   }
 
   List<String> getDrinkingTime() {
@@ -138,9 +160,6 @@ class _SettingsState extends State<Settings> {
     double times = _totalwater / _glass;
     double every = (hours.toDouble() * 60 / hourpart) / times;
 
-    // print('wake: ${_wakeup / hourpart}, bed: ${_bed / hourpart}');
-    // print('toatl: ${_totalwater}ml, glass: ${_glass}ml');
-
     if ((times % 1) != 0) times += 1;
 
     List<String> notitimes = [];
@@ -148,13 +167,66 @@ class _SettingsState extends State<Settings> {
       var h = start ~/ 60;
       var m = (((start / 60) % 1) * 60).toInt();
 
-      // print('${i}.\t${h}:${m}');
-
       notitimes.add('$h $m');
       start += every;
     }
     return notitimes;
   }
+
+  //new
+  void _changeHeight(bool plus) {
+    setState(() {
+      if (plus) {
+        _height += _weightchange;
+      } else {
+        if (_height == 0) return;
+        _height -= _heightchange;
+      }
+
+      _saveSetting('height', _height);
+    });
+  }
+  
+  void _changeGender(bool plus) {
+    setState(() {
+      if (plus) {
+        _gender = 1;
+      } else {
+        _gender = 0;
+      }
+
+      _saveSetting('gender', _gender);
+    });
+  }
+
+  void _changeAge(bool plus) {
+    setState(() {
+      if (plus) {
+        if (_age == 120) return;
+        _age += _agetchange;
+      } else {
+        if (_age == 3) return;
+        _age -= _agetchange;
+      }
+
+      _saveSetting('age', _age);
+    });
+  }
+
+  void _changeActivity(bool plus) {
+    setState(() {
+      if (plus) {
+        if (_activity == 4) return;
+        _activity += _activitytchange;
+      } else {
+        if (_activity == 0) return;
+        _activity -= _activitytchange;
+      }
+
+      _saveSetting('activity', _activity);
+    });
+  }
+
 
   Future<void> _saveSetting(String name, int value) async {
     final prefs = await SharedPreferences.getInstance();
@@ -177,6 +249,12 @@ class _SettingsState extends State<Settings> {
       _wakeup = (prefs.getInt('wakeup') ?? _wakeup);
       _bed = (prefs.getInt('bed') ?? _bed);
       _glass = (prefs.getInt('glass') ?? _glass);
+      // new
+      _height = (prefs.getInt('height') ?? _height);
+      _gender = (prefs.getInt('gender') ?? _gender);
+      _age = (prefs.getInt('age') ?? _age);
+      _activity = (prefs.getInt('activity') ?? _activity);
+      // new end
 
       _wakeupshow = showTime(_wakeup);
       _bedshow = showTime(_bed);
@@ -192,6 +270,12 @@ class _SettingsState extends State<Settings> {
         prefs.setInt('glass', _glass);
         prefs.setDouble('totalwater', _totalwater);
         prefs.setStringList('drink', _drink);
+        // new
+        prefs.setInt('height', _height);
+        prefs.setInt('gender', _gender);
+        prefs.setInt('age', _age);
+        prefs.setInt('activity', _activity);
+
       }
     });
   }
@@ -222,7 +306,8 @@ class _SettingsState extends State<Settings> {
                           style: TextStyle(
                               color: Color(0xff90b8f8),
                               fontSize: 37,
-                              fontFamily: 'AgencyFB'))),
+                              fontFamily: 'AgencyFB',
+                              fontWeight: FontWeight.bold,))),
                 ),
               ]),
             ),
@@ -248,311 +333,335 @@ class _SettingsState extends State<Settings> {
                         Navigator.pushNamed(context, '/');
                       },
                       icon: Image.asset(
-                        'assets/icons/arrow_left.png',
+                        'assets/icons/Left_Arrow.png',
                         color: const Color(0xff5f85db),
                         width: 30,
                       ))),
             ]),
           ),
 
+
+
           //SETTINGS BOX 1
           Positioned(
-            top: size.height * 0.15,
-            left: size.width * 0.05,
+            top: size.height * 0.18,
+            left: size.width * 0.075,
             child: Stack(children: [
               CustomPaint(
-                size: Size(size.width * 0.9, 235),
+                size: Size(size.width * 0.85, 500),
                 painter: SettingsBox(),
               ),
 
-              // WEIGHT
+              // GENDER
               Stack(children: [
                 Container(
-                  width: size.width * 0.9,
-                  margin: const EdgeInsets.only(top: 20),
-                  child: const Text('Weight',
+                  width: size.width * 0.85,
+                  margin: const EdgeInsets.only(top: 30),
+                  child: const Text('GENDER',
                       style: TextStyle(
                           color: Color(0xff90b8f8),
-                          fontSize: 20,
-                          fontFamily: 'AgencyFB'),
-                      textAlign: TextAlign.center),
+                          fontSize: 25,
+                          fontFamily: 'AgencyFB',
+                          fontWeight: FontWeight.bold,),
+                          textAlign: TextAlign.center),
                 ),
+                
                 Container(
-                  width: size.width * 0.9,
-                  margin: const EdgeInsets.only(top: 57),
-                  child: Text('${_weight}Kg',
-                      style: const TextStyle(
-                          color: Color(0xff90b8f8),
-                          fontSize: 37,
-                          fontFamily: 'AgencyFB'),
-                      textAlign: TextAlign.center),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 50),
-                  width: size.width * 0.9,
-
-                  // decoration: BoxDecoration(
-                  // border: Border.all(color: Colors.red, width: 0)),
-
+                  margin: const EdgeInsets.only(top: 60),
+                  width: size.width * 0.85,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(
                           width: 60,
                           height: 60,
-                          decoration: const BoxDecoration(
-                              color: Color(0xff353941), shape: BoxShape.circle),
+                          decoration: BoxDecoration(
+                              color: Color(_gendercolors[_gender+1]), shape: BoxShape.circle),
                           child: IconButton(
-                              onPressed: () => _changeWeight(false),
-                              icon: Image.asset('assets/icons/minus_small.png',
-                                  color: const Color(0xff5f85db), width: 30))),
+                              onPressed: () => _changeGender(false),
+                              icon: Image.asset('assets/icons/mars.png',
+                                  color: Color(_gendercolors[_gender]), width: 40))),
                       Container(
-                        width: size.width * 0.3,
+                        width: 0,
                       ),
                       Container(
                           width: 60,
                           height: 60,
-                          decoration: const BoxDecoration(
-                              color: Color(0xff353941), shape: BoxShape.circle),
+                          decoration: BoxDecoration(
+                              color: Color(_gendercolors[_gender]), shape: BoxShape.circle),
                           child: IconButton(
-                              onPressed: () => _changeWeight(true),
-                              icon: Image.asset('assets/icons/plus_small.png',
-                                  color: const Color(0xff5f85db), width: 30))),
+                              onPressed: () => _changeGender(true),
+                              icon: Image.asset('assets/icons/venus.png',
+                                  color: Color(_gendercolors[_gender+1]), width: 30))),
                     ],
                   ),
                 ),
               ]),
 
-              // 30 MINUTES OF WORKOUT
-              Stack(children: [
+              // AGE
+              Stack(
+                children: [
                 Container(
-                  width: size.width * 0.9,
-                  margin: const EdgeInsets.only(top: 120),
-                  child: const Text('30 minutes of workout',
+                  width: size.width * 0.85,
+                  margin: const EdgeInsets.only(top: 130),
+                  child: const Text('AGE',
                       style: TextStyle(
                           color: Color(0xff90b8f8),
-                          fontSize: 20,
-                          fontFamily: 'AgencyFB'),
+                          fontSize: 25,
+                          fontFamily: 'AgencyFB',
+                          fontWeight: FontWeight.bold,),
                       textAlign: TextAlign.center),
                 ),
                 Container(
-                  width: size.width * 0.9,
-                  margin: const EdgeInsets.only(top: 157),
-                  child: Text('${_workout * 30} min',
+                  width: size.width * 0.85,
+                  margin: const EdgeInsets.only(top: 172),
+                  child: Text('${_age}',
                       style: const TextStyle(
                           color: Color(0xff90b8f8),
-                          fontSize: 37,
-                          fontFamily: 'AgencyFB'),
+                          fontSize: 20,
+                          fontFamily: 'AgencyFB',
+                          fontWeight: FontWeight.bold,),
                       textAlign: TextAlign.center),
                 ),
                 Container(
-                  margin: const EdgeInsets.only(top: 150),
-                  width: size.width * 0.9,
+                  margin: const EdgeInsets.only(top: 160),
+                  width: size.width * 0.85,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(
-                          width: 60,
-                          height: 60,
+                          width: 45,
+                          height: 45,
                           decoration: const BoxDecoration(
                               color: Color(0xff353941), shape: BoxShape.circle),
                           child: IconButton(
-                              onPressed: () => _changeWorkout(false),
-                              icon: Image.asset('assets/icons/minus_small.png',
-                                  color: const Color(0xff5f85db), width: 30))),
+                              onPressed: () => _changeAge(false),
+                              icon: Image.asset('assets/icons/Minus.png',
+                                  color: const Color(0xff5f85db), width: 20))),
                       Container(
-                        width: size.width * 0.3,
+                        width: 0,
                       ),
                       Container(
-                          width: 60,
-                          height: 60,
+                          width: 45,
+                          height: 45,
                           decoration: const BoxDecoration(
                               color: Color(0xff353941), shape: BoxShape.circle),
                           child: IconButton(
-                              onPressed: () => _changeWorkout(true),
-                              icon: Image.asset('assets/icons/plus_small.png',
-                                  color: const Color(0xff5f85db), width: 30))),
-                    ],
-                  ),
-                ),
-              ])
-            ]),
-          ),
-
-          //SETTINGS BOX 2
-          Positioned(
-            top: size.height * 0.45,
-            left: size.width * 0.05,
-            child: Stack(children: [
-              CustomPaint(
-                size: Size(size.width * 0.9, 330),
-                painter: SettingsBox(),
-              ),
-
-              // WAKE UP
-              Stack(children: [
-                Container(
-                  width: size.width * 0.9,
-                  margin: const EdgeInsets.only(top: 20),
-                  child: const Text('Wake Up Time',
-                      style: TextStyle(
-                          color: Color(0xff90b8f8),
-                          fontSize: 20,
-                          fontFamily: 'AgencyFB'),
-                      textAlign: TextAlign.center),
-                ),
-                Container(
-                  width: size.width * 0.9,
-                  margin: const EdgeInsets.only(top: 57),
-                  child: Text(_wakeupshow,
-                      style: const TextStyle(
-                          color: Color(0xff90b8f8),
-                          fontSize: 37,
-                          fontFamily: 'AgencyFB'),
-                      textAlign: TextAlign.center),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 50),
-                  width: size.width * 0.9,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                          width: 60,
-                          height: 60,
-                          decoration: const BoxDecoration(
-                              color: Color(0xff353941), shape: BoxShape.circle),
-                          child: IconButton(
-                              onPressed: () => _changeWakeup(false),
-                              icon: Image.asset('assets/icons/minus_small.png',
-                                  color: const Color(0xff5f85db), width: 30))),
-                      Container(
-                        width: size.width * 0.3,
-                      ),
-                      Container(
-                          width: 60,
-                          height: 60,
-                          decoration: const BoxDecoration(
-                              color: Color(0xff353941), shape: BoxShape.circle),
-                          child: IconButton(
-                              onPressed: () => _changeWakeup(true),
-                              icon: Image.asset('assets/icons/plus_small.png',
-                                  color: const Color(0xff5f85db), width: 30))),
+                              onPressed: () => _changeAge(true),
+                              icon: Image.asset('assets/icons/Plus.png',
+                                  color: const Color(0xff5f85db), width: 20))),
                     ],
                   ),
                 ),
               ]),
 
-              // BED TIME
-              Stack(children: [
+              // WEIGTH
+              Stack(
+                children: [
                 Container(
-                  width: size.width * 0.9,
-                  margin: const EdgeInsets.only(top: 120),
-                  child: const Text('Bad Time',
-                      style: TextStyle(
-                          color: Color(0xff90b8f8),
-                          fontSize: 20,
-                          fontFamily: 'AgencyFB'),
-                      textAlign: TextAlign.center),
-                ),
-                Container(
-                  width: size.width * 0.9,
-                  margin: const EdgeInsets.only(top: 157),
-                  child: Text(_bedshow,
-                      style: const TextStyle(
-                          color: Color(0xff90b8f8),
-                          fontSize: 37,
-                          fontFamily: 'AgencyFB'),
-                      textAlign: TextAlign.center),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 150),
-                  width: size.width * 0.9,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                          width: 60,
-                          height: 60,
-                          decoration: const BoxDecoration(
-                              color: Color(0xff353941), shape: BoxShape.circle),
-                          child: IconButton(
-                              onPressed: () => _changeBed(false),
-                              icon: Image.asset('assets/icons/minus_small.png',
-                                  color: const Color(0xff5f85db), width: 30))),
-                      Container(
-                        width: size.width * 0.3,
-                      ),
-                      Container(
-                          width: 60,
-                          height: 60,
-                          decoration: const BoxDecoration(
-                              color: Color(0xff353941), shape: BoxShape.circle),
-                          child: IconButton(
-                              onPressed: () => _changeBed(true),
-                              icon: Image.asset('assets/icons/plus_small.png',
-                                  color: const Color(0xff5f85db), width: 30))),
-                    ],
-                  ),
-                ),
-              ]),
-
-              // GLASS VOLUME
-              Stack(children: [
-                Container(
-                  width: size.width * 0.9,
+                  width: size.width * 0.85,
                   margin: const EdgeInsets.only(top: 220),
-                  child: const Text('Glass Volume',
+                  child: const Text('WEIGTH',
                       style: TextStyle(
                           color: Color(0xff90b8f8),
-                          fontSize: 20,
-                          fontFamily: 'AgencyFB'),
+                          fontSize: 25,
+                          fontFamily: 'AgencyFB',
+                          fontWeight: FontWeight.bold,),
                       textAlign: TextAlign.center),
                 ),
                 Container(
-                  width: size.width * 0.9,
-                  margin: const EdgeInsets.only(top: 257),
-                  child: Text('${_glass}ml',
+                  width: size.width * 0.85,
+                  margin: const EdgeInsets.only(top: 262),
+                  child: Text('${_weight} kg',
                       style: const TextStyle(
                           color: Color(0xff90b8f8),
-                          fontSize: 37,
-                          fontFamily: 'AgencyFB'),
+                          fontSize: 20,
+                          fontFamily: 'AgencyFB',
+                          fontWeight: FontWeight.bold,),
                       textAlign: TextAlign.center),
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 250),
-                  width: size.width * 0.9,
+                  width: size.width * 0.85,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(
-                          width: 60,
-                          height: 60,
+                          width: 45,
+                          height: 45,
                           decoration: const BoxDecoration(
                               color: Color(0xff353941), shape: BoxShape.circle),
                           child: IconButton(
-                              onPressed: () => _changeGlass(false),
-                              icon: Image.asset('assets/icons/minus_small.png',
-                                  color: const Color(0xff5f85db), width: 30))),
+                              onPressed: () => _changeWeight(false),
+                              icon: Image.asset('assets/icons/Minus.png',
+                                  color: const Color(0xff5f85db), width: 20))),
                       Container(
-                        width: size.width * 0.3,
+                        width: 0,
                       ),
                       Container(
-                          width: 60,
-                          height: 60,
+                          width: 45,
+                          height: 45,
                           decoration: const BoxDecoration(
                               color: Color(0xff353941), shape: BoxShape.circle),
                           child: IconButton(
-                              onPressed: () => _changeGlass(true),
-                              icon: Image.asset('assets/icons/plus_small.png',
-                                  color: const Color(0xff5f85db), width: 30))),
+                              onPressed: () => _changeWeight(true),
+                              icon: Image.asset('assets/icons/Plus.png',
+                                  color: const Color(0xff5f85db), width: 20))),
                     ],
                   ),
                 ),
-              ])
+              ]),
+
+
+              // HEIGHT
+              Stack(
+                children: [
+                Container(
+                  width: size.width * 0.85,
+                  margin: const EdgeInsets.only(top: 310),
+                  child: const Text('HEIGHT',
+                      style: TextStyle(
+                          color: Color(0xff90b8f8),
+                          fontSize: 25,
+                          fontFamily: 'AgencyFB',
+                          fontWeight: FontWeight.bold,),
+                      textAlign: TextAlign.center),
+                ),
+                Container(
+                  width: size.width * 0.85,
+                  margin: const EdgeInsets.only(top: 352),
+                  child: Text('${_height} cm',
+                      style: const TextStyle(
+                          color: Color(0xff90b8f8),
+                          fontSize: 20,
+                          fontFamily: 'AgencyFB',
+                          fontWeight: FontWeight.bold,),
+                      textAlign: TextAlign.center),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 340),
+                  width: size.width * 0.85,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                          width: 45,
+                          height: 45,
+                          decoration: const BoxDecoration(
+                              color: Color(0xff353941), shape: BoxShape.circle),
+                          child: IconButton(
+                              onPressed: () => _changeHeight(false),
+                              icon: Image.asset('assets/icons/Minus.png',
+                                  color: const Color(0xff5f85db), width: 20))),
+                      Container(
+                        width: 0,
+                      ),
+                      Container(
+                          width: 45,
+                          height: 45,
+                          decoration: const BoxDecoration(
+                              color: Color(0xff353941), shape: BoxShape.circle),
+                          child: IconButton(
+                              onPressed: () => _changeHeight(true),
+                              icon: Image.asset('assets/icons/Plus.png',
+                                  color: const Color(0xff5f85db), width: 20))),
+                    ],
+                  ),
+                ),
+              ]),
+
+
+              // ACTIVITY
+              Stack(
+                children: [
+                Container(
+                  width: size.width * 0.85,
+                  margin: const EdgeInsets.only(top: 400),
+                  child: const Text('ACTIVITY',
+                      style: TextStyle(
+                          color: Color(0xff90b8f8),
+                          fontSize: 25,
+                          fontFamily: 'AgencyFB',
+                          fontWeight: FontWeight.bold,),
+                      textAlign: TextAlign.center),
+                ),
+                Container(
+                  width: size.width * 0.85,
+                  margin: const EdgeInsets.only(top: 442),
+                  child: Text('${_activitynames[_activity]}',
+                      style: const TextStyle(
+                          color: Color(0xff90b8f8),
+                          fontSize: 20,
+                          fontFamily: 'AgencyFB',
+                          fontWeight: FontWeight.bold,),
+                      textAlign: TextAlign.center),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 430),
+                  width: size.width * 0.85,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                          width: 45,
+                          height: 45,
+                          decoration: const BoxDecoration(
+                              color: Color(0xff353941), shape: BoxShape.circle),
+                          child: IconButton(
+                              onPressed: () => _changeActivity(false),
+                              icon: Image.asset('assets/icons/Minus.png',
+                                  color: const Color(0xff5f85db), width: 20))),
+                      Container(
+                        width: 0,
+                      ),
+                      Container(
+                          width: 45,
+                          height: 45,
+                          decoration: const BoxDecoration(
+                              color: Color(0xff353941), shape: BoxShape.circle),
+                          child: IconButton(
+                              onPressed: () => _changeActivity(true),
+                              icon: Image.asset('assets/icons/Plus.png',
+                                  color: const Color(0xff5f85db), width: 20))),
+                    ],
+                  ),
+                ),
+              ]),
+
+
+
+
+              
             ]),
           ),
 
+          // TAG
+          Positioned(
+            top: size.height * 0.16,
+            left: size.width * 0.5 - 75,
+            child: Stack(children: [
+              CustomPaint(
+                size: const Size(150, 30),
+                painter: Tag(),
+              ),
+              Container(
+                width: 150,
+                margin: const EdgeInsets.only(top: 0),
+                child: const Center(
+                  child: Text('USER',
+                    style: TextStyle(
+                      color: Color(0xff353941),
+                      fontSize: 25,
+                      fontFamily: 'AgencyFB',
+                      fontWeight: FontWeight.bold,
+                    )
+                  )
+                ),
+              ),
+            ]),
+          ),
+
+  
           // TESTING
           Positioned(
               bottom: size.height * 0.02,
@@ -644,43 +753,74 @@ class BottomNav extends CustomPainter {
   }
 }
 
+
 class SettingsBox extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    double height = size.height;
-    double width = size.width;
+          
+    Path path_0 = Path();
+    path_0.moveTo(size.width*0.0005257624,size.height*0.07378013);
+    path_0.cubicTo(size.width*0.0005257624,size.height*0.03319483,size.width*0.05937371,size.height*0.0002939447,size.width*0.1319664,size.height*0.0002939447);
+    path_0.lineTo(size.width*0.8680336,size.height*0.0002939447);
+    path_0.cubicTo(size.width*0.9406267,size.height*0.0002939447,size.width*0.9994742,size.height*0.03319483,size.width*0.9994742,size.height*0.07378013);
+    path_0.lineTo(size.width*0.9994742,size.height*0.2501470);
+    path_0.lineTo(size.width*0.9994742,size.height*0.3750735);
+    path_0.lineTo(size.width*0.9994742,size.height*0.4375367);
+    path_0.lineTo(size.width*0.9994742,size.height*0.4464633);
+    path_0.cubicTo(size.width*0.9994742,size.height*0.4566467,size.width*0.9835478,size.height*0.4636026,size.width*0.9679285,size.height*0.4688419);
+    path_0.cubicTo(size.width*0.9516961,size.height*0.4742869,size.width*0.9395521,size.height*0.4807478,size.width*0.9363828,size.height*0.4911817);
+    path_0.cubicTo(size.width*0.9354532,size.height*0.4942410,size.width*0.9353449,size.height*0.4989471,size.width*0.9353323,size.height*0.4998483);
+    path_0.cubicTo(size.width*0.9353312,size.height*0.4999506,size.width*0.9353312,size.height*0.5000494,size.width*0.9353323,size.height*0.5001517);
+    path_0.cubicTo(size.width*0.9353449,size.height*0.5010529,size.width*0.9354532,size.height*0.5057590,size.width*0.9363828,size.height*0.5088183);
+    path_0.cubicTo(size.width*0.9395521,size.height*0.5192522,size.width*0.9516961,size.height*0.5257131,size.width*0.9679285,size.height*0.5311581);
+    path_0.cubicTo(size.width*0.9835478,size.height*0.5363974,size.width*0.9994742,size.height*0.5433533,size.width*0.9994742,size.height*0.5535367);
+    path_0.lineTo(size.width*0.9994742,size.height*0.5624633);
+    path_0.lineTo(size.width*0.9994742,size.height*0.6249265);
+    path_0.lineTo(size.width*0.9994742,size.height*0.7498530);
+    path_0.lineTo(size.width*0.9994742,size.height*0.9262199);
+    path_0.cubicTo(size.width*0.9994742,size.height*0.9668078,size.width*0.9406267,size.height*0.9997061,size.width*0.8680336,size.height*0.9997061);
+    path_0.lineTo(size.width*0.1319664,size.height*0.9997061);
+    path_0.cubicTo(size.width*0.05937371,size.height*0.9997061,size.width*0.0005257624,size.height*0.9668078,size.width*0.0005257624,size.height*0.9262199);
+    path_0.lineTo(size.width*0.0005257624,size.height*0.7498530);
+    path_0.lineTo(size.width*0.0005257624,size.height*0.6249265);
+    path_0.lineTo(size.width*0.0005257624,size.height*0.5624633);
+    path_0.lineTo(size.width*0.0005257624,size.height*0.5535367);
+    path_0.cubicTo(size.width*0.0005257624,size.height*0.5433533,size.width*0.01645258,size.height*0.5363974,size.width*0.03207150,size.height*0.5311581);
+    path_0.cubicTo(size.width*0.04830368,size.height*0.5257131,size.width*0.05948254,size.height*0.5191464,size.width*0.06361725,size.height*0.5088183);
+    path_0.cubicTo(size.width*0.06496562,size.height*0.5054503,size.width*0.06466877,size.height*0.5034515,size.width*0.06466877,size.height*0.5000000);
+    path_0.cubicTo(size.width*0.06466877,size.height*0.4965485,size.width*0.06496562,size.height*0.4945497,size.width*0.06361725,size.height*0.4911817);
+    path_0.cubicTo(size.width*0.05948254,size.height*0.4808536,size.width*0.04830368,size.height*0.4742869,size.width*0.03207150,size.height*0.4688419);
+    path_0.cubicTo(size.width*0.01645258,size.height*0.4636026,size.width*0.0005257624,size.height*0.4566467,size.width*0.0005257624,size.height*0.4464633);
+    path_0.lineTo(size.width*0.0005257624,size.height*0.4375367);
+    path_0.lineTo(size.width*0.0005257624,size.height*0.3750735);
+    path_0.lineTo(size.width*0.0005257624,size.height*0.2501470);
+    path_0.lineTo(size.width*0.0005257624,size.height*0.07378013);
+    path_0.close();
 
-    Paint paint = Paint()
-      ..color = const Color(0xff26282b)
-      ..style = PaintingStyle.fill;
-    Path path = Path()..moveTo(0, height - 40);
+    Paint paint_0_fill = Paint()..style=PaintingStyle.fill;
+    paint_0_fill.color = Color(0xff26282B).withOpacity(1.0);
+    canvas.drawPath(path_0,paint_0_fill);
 
-    path.arcToPoint(Offset(80, height - 40),
-        radius: const Radius.circular(10), clockwise: false);
-    path.lineTo(40, height);
-
-    path.lineTo(width - 40, height);
-    path.arcToPoint(Offset(width - 40, height - 80),
-        radius: const Radius.circular(10), clockwise: false);
-    path.lineTo(width, height - 40);
-
-    path.lineTo(width, 40);
-    path.arcToPoint(Offset(width - 80, 40),
-        radius: const Radius.circular(10), clockwise: false);
-    path.lineTo(width - 40, 0);
-
-    path.lineTo(40, 0);
-    path.lineTo(80, 40);
-
-    path.arcToPoint(const Offset(0, 40),
-        radius: const Radius.circular(10), clockwise: false);
-
-    path.close();
-    canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+      return true;
+  }
+}
+
+class Tag extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+          
+    Paint paint_0_fill = Paint()..style=PaintingStyle.fill;
+    paint_0_fill.color = Color(0xff5F85DB).withOpacity(1.0);
+    canvas.drawRRect(RRect.fromRectAndCorners(Rect.fromLTWH(size.width*0.0009980040,size.height*0.004950495,size.width*0.9980040,size.height*0.9900990),bottomRight: Radius.circular(size.width*0.09980040),bottomLeft:  Radius.circular(size.width*0.09980040),topLeft:  Radius.circular(size.width*0.09980040),topRight:  Radius.circular(size.width*0.09980040)),paint_0_fill);
+
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }

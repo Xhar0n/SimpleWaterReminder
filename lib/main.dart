@@ -222,7 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       elevation: 0.1,
                       child: Container(
                         height: 30,
-                        child: Image.asset('assets/icons/glass_full.png',
+                        child: Image.asset('assets/icons/Record_Full_Glass.png',
                             color: const Color(0xff5f85db)),
                       ),
                     ),
@@ -244,7 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: IconButton(
                                 onPressed: () {},
                                 icon: Image.asset(
-                                  'assets/icons/chart_histogram.png',
+                                  'assets/icons/Minus.png',
                                   color: const Color(0xff5f85db),
                                   width: 30,
                                 ))),
@@ -258,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: IconButton(
                                 onPressed: () {},
                                 icon: Image.asset(
-                                  'assets/icons/glass_empty.png',
+                                  'assets/icons/Revent_Empty_Glass.png',
                                   color: const Color(0xff5f85db),
                                   width: 30,
                                 ))),
@@ -298,7 +298,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 shape: BoxShape.circle),
                             child: IconButton(
                                 onPressed: () {},
-                                icon: Image.asset('assets/icons/bell_empty.png',
+                                icon: Image.asset('assets/icons/Minus.png',
                                     color: const Color(0xff5f85db),
                                     width: 30))),
                         Container(width: size.width * 0.20),
@@ -324,11 +324,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   margin: const EdgeInsets.only(top: 37),
                   child: Center(
                       child: Text(
-                          '${_currentwaterlevel.toInt()}ml of ${_totalwater.toInt()}ml',
+                          '${_currentwaterlevel.toInt()}/${_totalwater.toInt()} ml',
                           style: const TextStyle(
                               color: Color(0xff90b8f8),
                               fontSize: 25,
-                              fontFamily: 'AgencyFB'))),
+                              fontFamily: 'AgencyFB',
+                              fontWeight: FontWeight.bold,))),
                 ),
               ]),
             ),
